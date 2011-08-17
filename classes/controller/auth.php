@@ -19,7 +19,7 @@ abstract class Controller_Auth_OpenId extends \Controller_Template {
 	final public function action_login() {
 		$controller = $this->request->controller;
 		$auth = Auth::instance();
-		if(! $auth->perform_check()) {
+		if(! $auth->check()) {
 			if(! $auth->login(Input::get_post('openid_identifier'))) {
 				Response::redirect($controller.'/error');
 			}
