@@ -1,3 +1,6 @@
 [submodule "vendor/lightopenid"]
 	path = vendor/lightopenid
 	url = git://gitorious.org/lightopenid/lightopenid.git
+[submodule "vendor/openid-selector"]
+	path = vendor/openid-selector
+	url = git://github.com/krtek4/openid-selector.git

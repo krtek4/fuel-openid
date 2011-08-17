@@ -19,7 +19,7 @@ class OpenID_Selector extends \Fuel\Core\Singleton {
 		return \View::factory('form')->set('url', $url);
 	}
 
-	public function get_js() {
+	public function get_inline_js() {
 		return 'openid.init("openid_identifier");';
 	}
 }
