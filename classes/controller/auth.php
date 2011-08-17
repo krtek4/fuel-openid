@@ -7,58 +7,41 @@
  * @link       http://github.com/krtek4/fuel-openid
  */
 
-class Controller_OpenIdAuth extends \Controller_Template {
-	private function login_form($data = array()) {
-		$data['url'] = Uri::create('auth/login');
-		$this->template->title = "Auth";
-		$this->template->content = View::factory('auth/index', $data);
-	}
-
+abstract class Controller_Auth_OpenId extends \Controller_Template {
 	// <editor-fold defaultstate="collapsed" desc="Actions">
 
-	public function action_index() {
-		$this->login_form();
-	}
-
-	public function action_login() {
+	/**
+	 * Procede with the OpenID authentication process.
+	 *
+	 * If everything went smoothly, the user is redirect to the 'sucess' action, otherwise the user is
+	 * redirected to the 'error' action. The error code can be retrieved with Auth::instance()->error_code()
+	 */
+	final public function action_login() {
+		$controller = $this->request->controller;
 		$auth = Auth::instance();
-		$data = array();
-		if($auth->perform_check()) {
-			$data['message'] = 'You are already logged in.';
-		} else {
-			$status = $auth->login();
-			if(! $status) {
-				$data = array('error' => 'Something went wrong : '.$auth->error_code());
-				$this->login_form($data);
-			} else {
-				$data['message'] = 'Login successful.';
+		if(! $auth->perform_check()) {
+			if(! $auth->login(Input::get_post('openid_identifier'))) {
+				Response::redirect($controller.'/error');
 			}
 		}
-		$this->template->title = "Login sucess";
-		$this->template->content = View::factory('auth/success', $data);
+		Response::redirect($controller.'/success');
 	}
 
+	/**
+	 * Logout the user and redirect to the 'index' action.
+	 */
 	public function action_logout() {
 		Auth::instance()->logout();
-		Response::redirect('auth');
-	}
-
-	public function action_success() {
-		if(Auth::instance()->perform_check()) {
-			$this->success_template();
-		} else {
-			Response::redirect(Uri::create('auth'));
-		}
+		Response::redirect($this->request->controller);
 	}
 
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="Abstract methods">
 
-	abstract protected function form_template();
-	abstract protected function success_template();
-	abstract protected function error_template();
-	abstract protected function logout_template();
+	abstract public function action_index();
+	abstract public function action_success();
+	abstract public function action_error();
 
 	// </editor-fold>
 

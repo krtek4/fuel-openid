@@ -11,6 +11,7 @@ class Auth_Login_OpenID_Error {
 	const USER_CANCEL = 1; // the user cancelled the authentication on the OpenID provider side.
 	const INSUFICIENT_INFORMATION = 2; // the OpenID provider doesn't returned all the required informations
 	const DATABASE_ERROR = 3; // a database error occured when getting or creating the user
+	const PROVIDER_404 = 4; // unable to join the provider
 	const UNKNOWN_ERROR = 100;
 }
 
@@ -223,6 +224,9 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 * If false is returned, an error during the login process occured, you can check the status by calling
 	 * error_code()
 	 *
+	 * If the the connection to the OpenID provider was not possible, the Auth_Login_OpenID_Error::PROVIDER_404
+	 * error code is set.
+	 *
 	 *  If the user cancelled the authentication with the provider, the Auth_Login_OpenID_Error::USER_CANCEL
 	 * error code is set.
 	 *
@@ -235,14 +239,22 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 *
 	 * @return  bool  whether login succeeded
 	 */
-	public function login($openid_identity = 'https://www.google.com/accounts/o8/id') {
+	public function login($openid_identity = '') {
 		if(! static::$openid->mode) {
 			$openid_identity = trim($openid_identity) ?: trim(\Input::post('openid_identifier'));
 			static::$openid->identity = $openid_identity;
 			static::$openid->required = \Config::get('openid.ax_required');
 			static::$openid->optional = \Config::get('openid.ax_optional');
 			static::$openid->returnUrl = Uri::create('auth/login');
-			header('Location: ' . static::$openid->authUrl());
+
+			try {
+				$providerurl = static::$openid->authUrl();
+			} catch(ErrorException $e) {
+				$this->e_code = Auth_Login_OpenID_Error::PROVIDER_404;
+				return false;
+			}
+
+			header('Location: ' . $providerurl);
 			exit(); // we're redirection to the OpenID provider
 		}
 
