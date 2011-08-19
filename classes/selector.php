@@ -15,12 +15,27 @@ class OpenID_Selector extends \Fuel\Core\Singleton {
 	 * @param string $url the URL for the provider
 	 * @return string HTML form for OpenID provider selection
 	 */
-	public function get_form($url) {
-		return \View::factory('form')->set('url', $url);
+	public function get_form() {
+		return \View::factory('form')->set('url', Uri::create('authopenid/login'));
+	}
+
+	public function get_css() {
+		return array(
+			Uri::create('authopenid/file/css/openid-shadow.css'),
+		);
 	}
 
 	public function get_inline_js() {
-		return 'openid.init("openid_identifier");';
+		// TODO: provide a way to have Prototype or MooTools init code.
+		return '$(document).ready(function() { openid.init("openid_identifier"); });';
+	}
+
+	public function get_js() {
+		// TODO: provide a way to choose between jQuery, MooTools or Prototype
+		return array(
+			Uri::create('authopenid/file/js/openid-jquery.js'),
+			Uri::create('authopenid/file/js/locales/openid-en.js'),
+		);
 	}
 }
 ?>

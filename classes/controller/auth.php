@@ -7,7 +7,30 @@
  * @link       http://github.com/krtek4/fuel-openid
  */
 
-abstract class Controller_Auth_OpenId extends \Controller_Template {
+class Controller_Authopenid extends \Controller {
+	// <editor-fold defaultstate="collapsed" desc="Properties">
+
+	private static $types = array(
+		'css' => 'text/css',
+		'js' => 'text/javascript',
+		'images' => '',
+	);
+
+	// </editor-fold>
+
+	// <editor-fold defaultstate="collapsed" desc="Private methods">
+
+	private function return_file($dir, $filename) {
+		// TODO: add some security in here
+		$path = __DIR__.'/../../vendor/openid-selector/'.$dir.'/'.$filename;
+		$content = file_get_contents($path);
+		header('Content-type: '.static::$types[$dir]);
+		echo $content;
+		exit();
+	}
+
+	// </editor-fold>
+
 	// <editor-fold defaultstate="collapsed" desc="Actions">
 
 	/**
@@ -21,28 +44,26 @@ abstract class Controller_Auth_OpenId extends \Controller_Template {
 		$auth = Auth::instance();
 		if(! $auth->check()) {
 			if(! $auth->login(Input::get_post('openid_identifier'))) {
-				Response::redirect($controller.'/error');
+				Response::redirect($auth->get_action('error'));
 			}
 		}
-		Response::redirect($controller.'/success');
+		Response::redirect($auth->get_action('success'));
 	}
 
 	/**
 	 * Logout the user and redirect to the 'index' action.
 	 */
 	public function action_logout() {
-		Auth::instance()->logout();
-		Response::redirect($this->request->controller);
+		$auth = Auth::instance();
+		$auth->logout();
+		Response::redirect($auth->get_action('logout'));
+	}
+
+	public function action_file($type, $filename) {
+		$filename = func_get_args();
+		array_shift($filename);
+		return $this->return_file($type, implode('/', $filename));
 	}
 
 	// </editor-fold>
-
-	// <editor-fold defaultstate="collapsed" desc="Abstract methods">
-
-	abstract public function action_index();
-	abstract public function action_success();
-	abstract public function action_error();
-
-	// </editor-fold>
-
 }

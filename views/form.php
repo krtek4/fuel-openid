@@ -1,9 +1,3 @@
-	<script type="text/javascript">
-		$(document).ready(function() {
-			openid.init('openid_identifier');
-		});
-	</script>
-
 	<!-- Simple OpenID Selector -->
 	<form action="<?php echo $url; ?>" method="get" id="openid_form">
 		<input type="hidden" name="action" value="verify" />

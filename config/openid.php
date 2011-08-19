@@ -30,4 +30,10 @@ return array(
 		'person/gender'			=> 'gender',
 		'contact/country/home'	=> 'country',
 	),
+
+	'actions' => array(
+		'success'	=> 'auth/success',
+		'error'		=> 'auth/error',
+		'logout'	=> 'auth',
+	),
 );

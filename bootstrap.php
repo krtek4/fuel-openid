@@ -15,7 +15,7 @@
 Autoloader::add_core_namespace('OpenID');
 
 Autoloader::add_classes(array(
-	'Controller_Auth_OpenId' => __DIR__.'/classes/controller/auth.php',
+	'Controller_Authopenid' => __DIR__.'/classes/controller/auth.php',
 	'OpenID_Selector' => __DIR__.'/classes/selector.php',
 	'Auth_Login_OpenID' => __DIR__.'/classes/auth/login/openid.php',
 	'Auth_Login_OpenID_Error' => __DIR__.'/classes/auth/login/openid.php',
