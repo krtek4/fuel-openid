@@ -188,6 +188,12 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 		return $this->e_code;
 	}
 
+	/**
+	 * return the configuration action to use depending on the given paramater.
+	 * The different types are defined in the configuration.
+	 * @param string $type the type of action we want
+	 * @return string the action to use.
+	 */
 	public function get_action($type) {
 		$actions = \Config::get('openid.actions');
 		return $actions[$type];

@@ -7,9 +7,25 @@
  * @link       http://github.com/krtek4/fuel-openid
  */
 
+/**
+ * Controller used to authenticate the user with an OpenID provider.
+ *
+ * 3 actions are defined :
+ *
+ * login : two step process. First the user is redirected to the OpenID provider,
+ * then he is logged in with the information returned by the provider.
+ *
+ * logout : log the user out.
+ *
+ * file : transmit the various file needed by the openid-selector if activated.
+ */
 class Controller_Authopenid extends \Controller {
 	// <editor-fold defaultstate="collapsed" desc="Properties">
 
+	/**
+	 * @var array The various MIME types the file action can return in an associative
+	 * array.
+	 */
 	private static $types = array(
 		'css' => 'text/css',
 		'js' => 'text/javascript',
@@ -33,7 +49,8 @@ class Controller_Authopenid extends \Controller {
 	// <editor-fold defaultstate="collapsed" desc="Actions">
 
 	/**
-	 * Procede with the OpenID authentication process.
+	 * Procede with the OpenID authentication process. The OpenID identifier
+	 * must be set in the GET variable named openid_identifier
 	 *
 	 * If everything went smoothly, the user is redirect to the 'sucess' action, otherwise the user is
 	 * redirected to the 'error' action. The error code can be retrieved with Auth::instance()->error_code()
@@ -58,16 +75,27 @@ class Controller_Authopenid extends \Controller {
 		Response::redirect($auth->get_action('logout'));
 	}
 
-	public function action_file($type, $filename) {
+	/**
+	 * Read a file on the disk and transmit its content to the browser.
+	 * This action can be used to includes the file needed by the openid-selector.
+	 *
+	 * The first url parameter must contain the path to the wanted file relatively
+	 * to the openid-selector directory : myhost.com/authopenid/css/openid-shadow.css
+	 * will load PKGPATH/openid/vendor/openid-selector/css/openid-shadow.css
+	 *
+	 * For security reason, access is restricted to this base directory and its
+	 * children.
+	 */
+	public function action_file() {
 		$filename = func_get_args();
-		array_shift($filename);
+		$type = array_shift($filename);
 
 		\Config::load('openid', true);
 		if(in_array('..', $filename) || ! \Config::get('openid.use_file_action')) {
 			Request::show_404();
 		}
 
-		return $this->return_file($type, implode('/', $filename));
+		$this->return_file($type, implode('/', $filename));
 	}
 
 	// </editor-fold>

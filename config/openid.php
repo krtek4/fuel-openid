@@ -31,12 +31,19 @@ return array(
 		'contact/country/home'	=> 'country',
 	),
 
+	// The actions we must redirect to when the login is completed with a
+	// a success or an error or after a logout.
 	'actions' => array(
 		'success'	=> 'auth/success',
 		'error'		=> 'auth/error',
 		'logout'	=> 'auth',
 	),
 
+	// Is the file action activated on the controller ? (see the doc about
+	// openid-selector for more details)
 	'use_file_action' => false,
+	// the path to directory containing images for openid-selector. This path will
+	// be access trough javascript, so it must be relative to the site base url.
+	// if null, the file action must be activated.
 	'openid_selector_img' => null,
 );
