@@ -26,7 +26,7 @@ There's three parts composing this packages : the driver itself, a basic control
 
 The driver has all the logic to redirect the browser to the OpenID provided and log the user in when the provider redirect on your site.
 
-When you call the login() method the first time (ie: the URL parameters contain no OpenID modes), a redirection to the provider corresponding to the OpenID identity is made. The provided then authenticate the user and redirects it back to the 'authopenid/login' action of your website. Now, login() is called a second time with all the informations needed to ensure that the user is who he claims to be !
+When you call the `login()` method the first time (ie: the URL parameters contain no OpenID modes), a redirection to the provider corresponding to the OpenID identity is made. The provided then authenticate the user and redirects it back to the 'authopenid/login' action of your website. Now, `login()` is called a second time with all the informations needed to ensure that the user is who he claims to be !
 
 If the user already exists in the database, he is logged in and the method returns `true`. Otherwise, the user is created in the database (all the field mappings can be configured, see below) and then the login proceed like described.
 
@@ -44,17 +44,17 @@ The controller also defines a `list` action, but this will be discussed in the n
 
 To simplify the use of an OpenID authentication form for the user, a provided selector is included in the package. You can add it to your website with the help of the `OpenID_Selector` class. Just follow these steps :
 
- 1. include the return value of get_form() on your site
- 2. include the css files returned by get_css()
- 3. include the javascript files returned by get_js()
- 4. execute the javascript snippet returned by get_inline_js()
+ 1. include the return value of `get_form()` on your site
+ 2. include the css files returned by `get_css()`
+ 3. include the javascript files returned by `get_js()`
+ 4. execute the javascript snippet returned by `get_inline_js()`
 
 At the time being, this will only work with jQuery loaded. I plan to add the support for Mootools and Prototype soon.
 
 Like described in the steps above, the selector need to have some css and javascript files loaded in order to work. Since there's no easy way to provide such files in a fuel packages, I offer you two solutions :
 
-1° I wrote a `file` action on the controller which can transmit file contents to the browser. This is the easiest way, it should work out of the box with the default configuration in most case.
-2° If you want to use an Asset management framework or for any other reasons, deactivate the `file` action in the configuration. After that, the methods from `OpenID_Selector` will return the filepath relative to the package directory and you'll have to make them visible from the web yourself.
+1. I wrote a `file` action on the controller which can transmit file contents to the browser. This is the easiest way, it should work out of the box with the default configuration in most case.
+2. If you want to use an Asset management framework or for any other reasons, deactivate the `file` action in the configuration. After that, the methods from `OpenID_Selector` will return the filepath relative to the package directory and you'll have to make them visible from the web yourself.
 
 ## Configuration
 
