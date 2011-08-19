@@ -196,7 +196,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 */
 	public function get_action($type) {
 		$actions = \Config::get('openid.actions');
-		return $actions[$type];
+		return Uri::create($actions[$type]);
 	}
 
 	// </editor-fold>
@@ -256,7 +256,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 			static::$openid->identity = $openid_identity;
 			static::$openid->required = \Config::get('openid.ax_required');
 			static::$openid->optional = \Config::get('openid.ax_optional');
-			static::$openid->returnUrl = Uri::create('authopenid/login');
+			static::$openid->returnUrl = $this->get_action('login');
 
 			try {
 				$providerurl = static::$openid->authUrl();

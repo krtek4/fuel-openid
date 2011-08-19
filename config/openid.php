@@ -33,7 +33,10 @@ return array(
 
 	// The actions we must redirect to when the login is completed with a
 	// a success or an error or after a logout.
+	// The 'login' hash is more particular, it is the action sent to the provider
+	// has a return URL. Normally you won't have to modify this one.
 	'actions' => array(
+		'login'		=> 'authopenid/login',
 		'success'	=> 'auth/success',
 		'error'		=> 'auth/error',
 		'logout'	=> 'auth',
@@ -41,7 +44,7 @@ return array(
 
 	// Is the file action activated on the controller ? (see the doc about
 	// openid-selector for more details)
-	'use_file_action' => false,
+	'use_file_action' => true,
 	// the path to directory containing images for openid-selector. This path will
 	// be access trough javascript, so it must be relative to the site base url.
 	// if null, the file action must be activated.

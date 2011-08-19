@@ -63,7 +63,8 @@ class OpenID_Selector extends \Fuel\Core\Singleton {
 	 * @return string HTML form for OpenID provider selection
 	 */
 	public function get_form() {
-		return \View::factory('form')->set('url', Uri::create('authopenid/login'));
+		$actions = \Config::get('openid.actions');
+		return \View::factory('form')->set('url', Uri::create($actions['login']));
 	}
 
 	/**
