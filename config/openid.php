@@ -36,4 +36,7 @@ return array(
 		'error'		=> 'auth/error',
 		'logout'	=> 'auth',
 	),
+
+	'use_file_action' => false,
+	'openid_selector_img' => null,
 );
