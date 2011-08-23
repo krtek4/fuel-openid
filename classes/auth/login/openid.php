@@ -40,10 +40,9 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	private $user = null;
 	//</editor-fold>
 
-	public static function _init()
-	{
+	public static function _init() {
 		\Config::load('openid', true);
-		static::$openid = new LightOpenID('localhost');
+		static::$openid = new LightOpenID(Input::server('HTTP_HOST'));
 		static::$table_name = \Config::get('openid.table_name');
 		static::$mapping = \Config::get('openid.mapping');
 	}
