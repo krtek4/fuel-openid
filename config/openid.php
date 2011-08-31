@@ -11,6 +11,14 @@ return array(
 	// the salt for the login hash
 	'salt' => 'your own private salt',
 
+	// use the guest login for ACLs and group usage for visitors, change to
+	// false if you want to deactivate the functionnality.
+	'guest_login' => array(
+		'id' => -1,
+		'nickname' => 'guest',
+		'group' => '0',
+	),
+
 	// AX field to ask to the OpenID provider
 	'ax_required' => array('contact/email', 'namePerson/first', 'namePerson/last'),
 	'ax_optional' => array('namePerson/friendly', 'birthDate', 'person/gender', 'contact/country/home'),
@@ -18,12 +26,18 @@ return array(
 	// the table where all the data must be saved
 	'table_name' => 'accounts',
 	// the database mapping for each AX fields.
-	// identity is the OpenID Identity and login_hash a temporary login hash used to avoid session hijacking.
+	//
+	// There are 3 particular fields :
+	// - identity is the OpenID Identity.
+	// - login_hash a temporary login hash used to avoid session hijacking.
+	// - group is the main group of the user.
 	'mapping' => array(
 		'identity'				=> 'identity',
 		'login_hash'			=> 'login_hash',
+		'group'					=> 'group',
+
 		'contact/email'			=> 'email',
-		'namePerson/friendly'		=> 'nickname',
+		'namePerson/friendly'	=> 'nickname',
 		'namePerson/first'		=> 'firstname',
 		'namePerson/last'		=> 'lastname',
 		'birthDate'				=> 'birthdate',

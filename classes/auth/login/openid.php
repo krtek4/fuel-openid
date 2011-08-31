@@ -35,17 +35,22 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 */
 	protected $e_code = null;
 	/**
-	 * @var  Account the current logged user or null.
+	 * @var  array the current logged user or null.
 	 */
 	private $user = null;
 	//</editor-fold>
 
 	public static function _init() {
 		\Config::load('openid', true);
+		\Config::load('simpleauth', true);
 		static::$openid = new LightOpenID(Input::server('HTTP_HOST'));
 		static::$table_name = \Config::get('openid.table_name');
 		static::$mapping = \Config::get('openid.mapping');
 	}
+
+	protected $config = array(
+		'drivers' => array('group' => array('SimpleGroup')),
+	);
 
 	// <editor-fold defaultstate="collapsed" desc="Private methods">
 
@@ -98,15 +103,13 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 * @return  mixed  false if no user found, the user informations otherwise.
 	 */
 	final protected function get_user($openid_identity) {
-		$user =\DB::select()	->where($this->get_mapping('identity'), '=', $openid_identity)
+		if($openid_identity) {
+			$user =\DB::select()->where($this->get_mapping('identity'), '=', $openid_identity)
 						->from(static::$table_name)
-						->as_object()
-						->execute();
-		if($user->count() == 0) {
-			return false;
+						->execute()->current();
+			return $user;
 		}
-		$user = $user->as_array();
-		return $user[0];
+		return false;
 	}
 
 	/**
@@ -121,9 +124,8 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 		);
 		foreach($openid_data as $k => $v) {
 			$mapping = $this->get_mapping($k);
-			if(! empty($mapping)) {
+			if(! empty($mapping))
 				$user[$mapping] = $v;
-			}
 		}
 		$result = \DB::insert(static::$table_name)->set($user)->execute();
 		if(! $result) {
@@ -140,11 +142,11 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 * @return  mixed user data
 	 */
 	final protected function get_user_data($key) {
-		if(is_null($this->user)) {
+		if(is_null($this->user))
 			return null;
-		}
+
 		$map = $this->get_mapping($key);
-		return $this->user->$map;
+		return isset($this->user[$map]) ? $this->user[$map] : false;
 	}
 
 	/**
@@ -154,11 +156,11 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 * @param mixed the value
 	 */
 	final protected function set_user_data($key, $value) {
-		if(is_null($this->user)) {
+		if(is_null($this->user))
 			return;
-		}
+
 		$map = $this->get_mapping($key);
-		$this->user->$map = $value;
+		$this->user[$map] = $value;
 	}
 
 	/**
@@ -170,7 +172,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 		$login_hash = sha1(\Config::get('openid.salt').\Date::factory()->get_timestamp());
 		\DB::update(static::$table_name)
 			->value('login_hash', $login_hash)
-			->where('id', '=', $this->user->id)
+			->where('id', '=', $this->user['id'])
 			->execute();
 		$this->set_user_data('login_hash', $login_hash);
 		return $login_hash;
@@ -198,6 +200,13 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 		return Uri::create($actions[$type]);
 	}
 
+	/**
+	 * @return mixed false if guest login is deactivated, guest information otherwise
+	 */
+	public function guest_login() {
+		return \Config::get('openid.guest_login');
+	}
+
 	// </editor-fold>
 
 	// <editor-fold defaultstate="collapsed" desc="Overriden abstract methods">
@@ -212,13 +221,11 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 		$identity = \Session::get('openid_identity');
 		$login_hash  = \Session::get('login_hash');
 
-		if (is_null($this->user)) {
+		if (is_null($this->user) || $this->get_user_data('identity') != $identity)
 			$this->user = $this->get_user($identity);
-		}
 
-		if ($this->user and $this->get_user_data('login_hash') === $login_hash) {
+		if ($this->user && $this->get_user_data('login_hash') === $login_hash)
 			return true;
-		}
 
 		$this->logout();
 		return false;
@@ -261,6 +268,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 				$providerurl = static::$openid->authUrl();
 			} catch(ErrorException $e) {
 				$this->e_code = Auth_Login_OpenID_Error::PROVIDER_404;
+				$this->logout();
 				return false;
 			}
 
@@ -281,7 +289,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 		} else {
 			$this->e_code = Auth_Login_OpenID_Error::UNKNOWN_ERROR;
 		}
-		\Session::delete('openid_identity');
+		$this->logout();
 		return false;
 	}
 
@@ -289,7 +297,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	* Logout method. Reset all data in the session.
 	*/
 	public function logout() {
-		$this->user = null;
+		$this->user = $this->guest_login() ?: null;
 		\Session::delete('openid_identity');
 		\Session::delete('login_hash');
 		return true;
@@ -304,7 +312,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	public function get_user_id() {
 		if(is_null($this->user))
 				return false;
-		return array('openid', $this->user->id);
+		return array($this->id, $this->user['id']);
 	}
 
 	/**
@@ -314,7 +322,8 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	* @return  array
 	*/
 	public function get_groups() {
-		return array();
+		$group = $this->get_user_data('group');
+		return array(array('SimpleGroup', $group ? $group : 0));
 	}
 
 	/**
@@ -338,6 +347,15 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 			$screenname = $this->get_user_data('namePerson/first').' '.$this->get_user_data('namePerson/last');
 		}
 		return $screenname;
+	}
+
+	/**
+	 * Extension of base driver method to default to user group instead of user id
+	 */
+	public function has_access($condition, $driver = null, $user = null) {
+		if (is_null($user))
+			$user = reset($this->get_groups());
+		return parent::has_access($condition, $driver, $user);
 	}
 
 	// </editor-fold>
