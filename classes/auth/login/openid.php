@@ -302,6 +302,8 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	* @return  array
 	*/
 	public function get_user_id() {
+		if(is_null($this->user))
+				return false;
 		return array('openid', $this->user->id);
 	}
 
