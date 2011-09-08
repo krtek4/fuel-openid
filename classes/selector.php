@@ -59,12 +59,18 @@ class OpenID_Selector {
 	 * Return the HTML for an OpenId Selector form. You must provide the URL the provided must
 	 * call after authenticating the user. If you're using the provided controller it will be the login action.
 	 *
-	 * @param string $url the URL for the provider
+	 * @param string $title the title of the form
+	 * @param string $explanation the explanation for the form
 	 * @return string HTML form for OpenID provider selection
 	 */
-	static public function get_form() {
+	static public function get_form($title = 'Sign-in or Create New Account', $explanation = 'Please click your account provider:') {
 		$actions = \Config::get('openid.actions');
-		return \View::factory('form')->set('url', Uri::create($actions['login']));
+		$data = array(
+			'url' => Uri::create($actions['login']),
+			'title' => $title,
+			'explanation' => $explanation,
+		);
+		return \View::factory('form', $data);
 	}
 
 	/**
@@ -93,14 +99,15 @@ class OpenID_Selector {
 	 * If the file action is enabled on the controller, it will be used.
 	 * Otherwise, it will be the path relative to the DOCROOT.
 	 *
-	 * Currently, only jQuery is supported.
+	 * @param string the language file to use (default: en)
+	 * @param string the library to use (default: jquery)
 	 * @return array files to include
 	 */
-	static public function get_js() {
+	static public function get_js($lang = 'en', $library = 'jquery') {
 		// TODO: provide a way to choose between jQuery, MooTools or Prototype
 		return array(
-			self::format_filename('js/openid-jquery.js'),
-			self::format_filename('js/locales/openid-en.js'),
+			self::format_filename('js/openid-'.$library.'.js'),
+			self::format_filename('js/locales/openid-'.$lang.'.js'),
 		);
 	}
 }
