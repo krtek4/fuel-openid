@@ -53,13 +53,15 @@ class Controller_Authopenid extends \Controller {
 	 * must be set in the GET variable named openid_identifier
 	 *
 	 * If everything went smoothly, the user is redirect to the 'sucess' action, otherwise the user is
-	 * redirected to the 'error' action. The error code can be retrieved with Auth::instance()->error_code()
+	 * redirected to the 'error' action. The error code is saved in the session under the 'e_openid'
+	 * hash.
 	 */
 	final public function action_login() {
 		$controller = $this->request->controller;
 		$auth = Auth::instance();
 		if(! $auth->check()) {
 			if(! $auth->login(Input::get_post('openid_identifier'))) {
+				Session::set('e_openid', $auth->error_code());
 				Response::redirect($auth->get_action('error'));
 			}
 		}

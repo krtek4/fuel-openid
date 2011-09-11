@@ -67,7 +67,7 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 *
 	 * @return  bool  the user validity (the error code is already set)
 	 */
-	final protected function validate_user($openid_identity, $openid_data = array()) {
+	final public function validate_user($openid_identity, $openid_data = array()) {
 		$user = $this->get_user($openid_identity);
 
 		// user is not in DB
@@ -75,8 +75,8 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 			$diff = array_diff(\Config::get('openid.ax_required'), array_keys($openid_data));
 			if(! empty($diff)) {
 				$this->e_code = Auth_Login_OpenID_Error::INSUFICIENT_INFORMATION;
-				\Session::set('openid_identity', $openid_identity);
-				\Session::set('openid_data', $openid_data);
+				\Session::set('e_openid_identity', $openid_identity);
+				\Session::set('e_openid_data', $openid_data);
 				return false;
 			}
 			if(! $this->create_user($openid_identity, $openid_data)) {
@@ -93,8 +93,18 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 * @param string AX attribute name
 	 * @return string database column to use
 	 */
-	final protected function get_mapping($key) {
+	final public function get_mapping($key) {
 		return static::$mapping[$key];
+	}
+
+	/**
+	 * Return the AX attribute name for a database field
+	 *
+	 * @param string database column
+	 * @return string AX attribute name
+	 */
+	final public function get_reverse_mapping($key) {
+		return array_search($key, static::$mapping);
 	}
 
 	/**
