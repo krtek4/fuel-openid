@@ -363,8 +363,10 @@ class Auth_Login_OpenID extends \Auth_Login_Driver {
 	 * Extension of base driver method to default to user group instead of user id
 	 */
 	public function has_access($condition, $driver = null, $user = null) {
-		if (is_null($user))
-			$user = reset($this->get_groups());
+		if (is_null($user)) {
+			$groups = $this->get_groups();
+			$user = reset($groups);
+		}
 		return parent::has_access($condition, $driver, $user);
 	}
 
