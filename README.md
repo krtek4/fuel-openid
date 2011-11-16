@@ -1,3 +1,9 @@
+## I don't plane to update this project anymore
+
+I added the OpenID support to https://github.com/philsturgeon/fuel-ninjauth and I will use this package now for my own development.
+
+However, I will continue to merge pull requests as they come and apply patch if you send one.
+
 # OpenID authentication driver for Fuel PHP
 
 ## Introduction
